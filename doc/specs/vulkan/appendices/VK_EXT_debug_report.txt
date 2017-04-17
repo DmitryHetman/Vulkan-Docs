@@ -73,7 +73,7 @@ An application can register callbacks even when no validation layers are
 enabled, but they will only be called for loader and, if implemented, driver
 events.
 
-To capture issues found while creating or destroying an instance an
+To capture events found while creating or destroying an instance an
 application can link a slink:VkDebugReportCallbackCreateInfoEXT structure to
 the pname:pNext element of the slink:VkInstanceCreateInfo structure given to
 flink:vkCreateInstance.
@@ -147,8 +147,38 @@ The older enum is still available for backwards compatibility.
 [NOTE]
 .Note
 ====
-There are no issues in the current spec.
-We should probably add some.
+1. What is the hierarchy / seriousness of the message flags?
+   E.g. error > warning > perf. warning ...
+   RESOLVED: There is no specific hierarchy. Each bit is independent
+   and should be checked via bitwise AND. E.g. to check the ERROR bit:
+    if (localFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
+        process error message
+    }
+    if (localFlags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
+        process debug message
+    }
+
+   The validation layers do use them in a hierarchical way ( ERROR >
+   WARN > PERF. WARN > DEBUG > INFO) and they (at least at the time
+   of this writing) only set one bit at a time. But it's not a
+   requirement of this extension.
+
+   It's possible that a layer may intercept and change or
+   augment the flags with extension values the application's
+   debug report handler may not be famliar with so it's important
+   to treat each flag independently.
+
+2. Should there be a VU requiring msgFlags to be non-zero?
+   RESOLVED: It may not be very useful, but do not need VU statement
+   requiring the msgFlags at create-time be non-zero. I can imagine
+   that apps may prefer it as it allows them to set the mask as desired
+   - including nothing - at runtime without having to check.
+
+3. What is the difference between VK_DEBUG_REPORT_DEBUG_BIT_EXT and
+   VK_DEBUG_REPORT_INFORMATION_BIT_EXT?
+   RESOLVED: During development, it was handy to be able to enable / disable
+   debug information for the loader separately from validation layers.
+
 ====
 
 === Version History
@@ -175,3 +205,6 @@ We should probably add some.
 
  * Revision 6, 2017-01-31 (Baldur Karlsson)
    - Added VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_KHR_EXT
+
+ * Revision 7, 2017-04-14 (Courtney Goeltzenleuchter)
+   - Clarify wording and address questions from developers.

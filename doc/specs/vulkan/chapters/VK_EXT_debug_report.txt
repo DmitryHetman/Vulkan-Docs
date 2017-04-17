@@ -86,7 +86,10 @@ include::../api/enums/VkDebugReportFlagBitsEXT.txt[]
 
 For each sname:VkDebugReportCallbackEXT that is created the flags determine
 when that function is called.
-A callback will be made for issues that match any bit set in its flags.
+An event can set one or more VkDebugReportFlagBitsEXT bits to indicate
+the nature of the event. The debug report extension will do a bitwise
+AND of the flags to each VkDebugReportCallbackEXT object's flags.
+If the result is non-zero the corresponding callback will be called.
 The callback will come directly from the component that detected the event,
 unless some other layer intercepts the calls for its own purposes (filter
 them in different way, log to system error log, etc.) An application may
@@ -128,7 +131,8 @@ include::../api/funcpointers/PFN_vkDebugReportCallbackEXT.txt[]
     created.
 
 The callback returns a basetype:VkBool32 that indicates to the calling layer
-if the Vulkan call should: be aborted or not.
+the application's desire to abort the call. The validation layers usually
+will abort, but may not always be able to honor that request.
 Applications should: always return ename:VK_FALSE so that they see the same
 behavior with and without validation layers enabled.
 
@@ -185,7 +189,7 @@ include::../api/enums/VkDebugReportObjectTypeEXT.txt[]
     sname:VkSurfaceKHR.
   * ename:VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT is a
     sname:VkSwapchainKHR.
-  * ename:VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_EXT is a
+  * ename:VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT_EXT is a
     sname:VkDebugReportCallbackEXT.
   * ename:VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_KHR_EXT is a
     sname:VkDisplayKHR.
