@@ -172,14 +172,22 @@ include::../api/protos/vkCreateInstance.txt[]
   * pname:pInstance points a sname:VkInstance handle in which the resulting
     instance is returned.
 
-fname:vkCreateInstance creates the instance, then enables and initializes
-global layers and extensions requested by the application.
-If an extension is provided by a layer, both the layer and extension must:
-be specified at fname:vkCreateInstance time.
-If a specified layer cannot be found, no sname:VkInstance will be created
-and the function will return ename:VK_ERROR_LAYER_NOT_PRESENT.
-Likewise, if a specified extension cannot be found the call will return
-ename:VK_ERROR_EXTENSION_NOT_PRESENT.
+fname:vkCreateInstance verifies that the requested layers exist. If not,
+vkCreateInstance will return ename:VK_ERROR_LAYER_NOT_PRESENT.
+Next fname:vkCreateInstance verifies that the requested extensions can be found
+(e.g. in loader, enabled instance layers or ICDs) and if the extension is
+not found, fname:vkCreateInstance will return
+ename:VK_ERROR_EXTENSION_NOT_PRESENT. After verifying the instance layers
+and extensions the sname:VkInstance object is created and returned to the
+application.
+If a requested extension is only supported by a layer, both the layer and
+extension need to be specified at fname:vkCreateInstance time.
+For example, if an application wants to enable extensionB that is part of layerB,
+the application will include "layerB" in sname:ppEnabledLayerNames and
+"extensionB" in the sname:ppEnabledExtensionNames list.
+The application may also want layerA and can include that in the
+sname:ppEnabledLayerNames list. However, any extensions that may be supported in
+layerA will not be enabled unless specified in sname:ppEnabledExtensionNames.
 
 include::../validity/protos/vkCreateInstance.txt[]
 
